@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Force nitro on outside the Lovable sandbox so self-hosted builds (Vercel,
+  // Netlify, Cloudflare, etc.) get a real server bundle instead of a static-only
+  // output. Without this, Vercel just serves /index.html → 404 on any route.
+  // NITRO_PRESET env var picks the target automatically (Vercel sets it for you).
+  nitro: true,
 });
