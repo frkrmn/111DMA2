@@ -24,18 +24,38 @@ function analyzeDMA(bars: Bar[], offset: number): { yesterdayClose: number; dma1
 // ---------- Binance (crypto) ----------
 async function binanceKlines(symbol: string): Promise<Bar[]> {
   const pair = `${symbol.toUpperCase()}USDT`;
-  const url = `https://api.binance.com/api/v3/klines?symbol=${pair}&interval=1d&limit=130`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    if (res.status === 400) throw new Error(`Unknown symbol ${symbol}/USDT`);
-    if (res.status === 418 || res.status === 429) throw new Error("Rate limit (Binance)");
-    throw new Error(`Binance ${res.status}`);
+  // Try the public market-data mirror first (works from cloud datacenters),
+  // then fall back to api.binance.com if needed.
+  const hosts = [
+    "https://data-api.binance.vision",
+    "https://api.binance.com",
+  ];
+  let lastErr: Error | null = null;
+  for (const host of hosts) {
+    const url = `${host}/api/v3/klines?symbol=${pair}&interval=1d&limit=130`;
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; DMA111Scanner/1.0)" },
+      });
+      if (!res.ok) {
+        if (res.status === 400) throw new Error(`Unknown symbol ${symbol}/USDT`);
+        if (res.status === 418 || res.status === 429) throw new Error("Rate limit (Binance)");
+        if (res.status === 403 || res.status === 451) {
+          lastErr = new Error(`Binance ${res.status} (geo-blocked) on ${host}`);
+          continue;
+        }
+        throw new Error(`Binance ${res.status}`);
+      }
+      const json = (await res.json()) as unknown[];
+      return json.map((k) => {
+        const row = k as (string | number)[];
+        return { time: Math.floor(Number(row[0]) / 1000), close: Number(row[4]) };
+      });
+    } catch (e) {
+      lastErr = e instanceof Error ? e : new Error(String(e));
+    }
   }
-  const json = (await res.json()) as unknown[];
-  return json.map((k) => {
-    const row = k as (string | number)[];
-    return { time: Math.floor(Number(row[0]) / 1000), close: Number(row[4]) };
-  });
+  throw lastErr ?? new Error("Binance request failed");
 }
 
 // ---------- Alpha Vantage (stocks) ----------
