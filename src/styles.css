@@ -1,0 +1,88 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Archivo", system-ui, sans-serif;
+  --font-sans: "Archivo", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-bull: var(--bull);
+  --color-bear: var(--bear);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--ink);
+  --color-primary-foreground: var(--paper);
+  --color-ring: var(--accent);
+  --color-input: var(--border);
+  --color-popover: var(--paper);
+  --color-popover-foreground: var(--ink);
+  --color-secondary: var(--muted);
+  --color-secondary-foreground: var(--ink);
+  --color-destructive: var(--bear);
+  --color-destructive-foreground: var(--paper);
+
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+}
+
+:root {
+  --paper: oklch(0.965 0.008 85);            /* cream #f5f3ee */
+  --background: var(--paper);
+  --ink: oklch(0.18 0.005 240);              /* near black */
+  --foreground: var(--ink);
+  --card: oklch(0.985 0.005 85);
+  --card-foreground: var(--ink);
+  --muted: oklch(0.93 0.008 85);
+  --muted-foreground: oklch(0.45 0.006 240);
+  --border: oklch(0.86 0.008 85);
+  --accent: oklch(0.66 0.22 35);             /* orange #ff5722-ish */
+  --accent-foreground: oklch(0.99 0 0);
+  --bull: oklch(0.55 0.16 145);
+  --bear: oklch(0.58 0.22 30);
+  --radius: 3px;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--ink) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--ink) 5%, transparent) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  ::selection { background: color-mix(in oklab, var(--accent) 30%, transparent); }
+}
+
+@utility notch {
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+@utility notch-sm {
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
